@@ -1,8 +1,16 @@
-<html>
-	<head>
-		<title>Index</title>
-	</head>
-	<body>
-		<h1>Index page</h1>
-	</body>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Tournament Generator</title>
+</head>
+<body>
+	<input type="text" name="createTournament" id="inputTournamentName" placeholder="Tournament name">
+	<button onclick="createTournament()">Create Tournament</button>
+
+	<script src="{% static 'js/tournament.js' %}"></script>
+</body>
 </html>

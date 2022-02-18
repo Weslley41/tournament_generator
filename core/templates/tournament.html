@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Tournament Generator</title>
+</head>
+<body>
+	<h1>Tournament: {{tournament.name}}</h1>
+	<input type="text" name="insertTeam" id="inputTeamName" placeholder="Team name">
+	<button onclick="addTeam()">Insert Team</button>
+	<hr>
+	<div>
+		<h2>{{count_teams}} Registered Teams</h2>
+		{% for team in teams %}
+			<p>
+				{{team.name}}
+				<button onclick="removeTeam({{team.id}})">Delete</button>
+			</p>
+		{% endfor %}
+	</div>
+	<script src=" {% static 'js/team.js' %} "></script>
+</body>
+</html>
