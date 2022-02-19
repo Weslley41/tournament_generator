@@ -134,6 +134,8 @@ class Battle(models.Model):
 		...
 		Parameters:
 		(integer) round: round number
+		(integer) game: round number
+		(object) tournament: tournament object
 		(object) team_1: team object
 		(object) team_2: team object
 		Attributes:
@@ -151,6 +153,7 @@ class Battle(models.Model):
 	"""
 
 	id = models.AutoField(primary_key=True)
+	tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
 	game = models.IntegerField()
 	round = models.IntegerField()
 	team_1 = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_1', default=None)

@@ -1,5 +1,5 @@
 function addTeam() {
-	team_name = document.getElementById('inputTeamName').value;
+	let team_name = document.getElementById('inputTeamName').value;
 	open(window.location.href + '/insert_team/' + team_name, '_self');
 }
 
