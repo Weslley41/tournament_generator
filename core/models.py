@@ -160,6 +160,7 @@ class Battle(models.Model):
 	team_2 = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='team_2', default=None)
 	team_1_score = models.IntegerField(default=0)
 	team_2_score = models.IntegerField(default=0)
+	editable = models.BooleanField(default=True)
 
 	def __str__(self):
 		return f'Round {self.round} - Game {self.game}\n{self.team_1.name} {self.team_1_score}x{self.team_2_score} {self.team_2.name}'
@@ -204,8 +205,10 @@ class Battle(models.Model):
 			self.team_2.add_draw()
 			winner = None
 
+		self.editable = False
 		self.team_1.save()
 		self.team_2.save()
+		self.save()
 
 		return winner
 
@@ -229,3 +232,20 @@ class Battle(models.Model):
 			Save battle
 		"""
 		self.save()
+
+
+	def battleToJSON(self):
+		"""
+			Returns battle as json
+		"""
+
+		return {
+			'id': self.id,
+			'game': self.game,
+			'round': self.round,
+			'team_1': self.team_1.name,
+			'team_2': self.team_2.name,
+			'team_1_score': self.team_1_score,
+			'team_2_score': self.team_2_score,
+			'editable': self.editable
+		}

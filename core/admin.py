@@ -12,7 +12,7 @@ class TeamAdmin(admin.ModelAdmin):
 
 
 class BattleAdmin(admin.ModelAdmin):
-	list_display = ('game', 'round', 'team_1', 'team_2')
+	list_display = ('tournament', 'round', 'game', 'team_1', 'team_2')
 
 
 admin.site.register(Tournament, TournamentAdmin)
