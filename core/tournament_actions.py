@@ -77,7 +77,7 @@ def generate_knockout(request, id):
 	len_brackets = brackets_len(count_teams)
 
 	for i in range (len_brackets - count_teams):
-		Team(name='None', tournament=tournament_obj).save_team()
+		Team(name='No Team', tournament=tournament_obj, false_team=True).save_team()
 	list_teams = list(Team.objects.filter(tournament=id))
 
 	generate_battles(list_teams, tournament_obj)
@@ -95,22 +95,71 @@ def generate_battles(list_teams, tournament_obj):
 	from random import choice
 
 	count_teams = len(list_teams)
-	last_round = Battle.objects.values_list('round').filter(tournament=tournament_obj).distinct().last()
-	round = last_round[0] + 1 if last_round else 1
+	tournament_obj.change_current_round()
+	round = tournament_obj.current_round
 	last_game = Battle.objects.values_list('game').filter(tournament=tournament_obj).last()
 	last_game = last_game[0] if last_game else 0
 
 	for game in range(1, count_teams // 2 + 1):
 		team1 = list_teams.pop()
 		team2 = choice(list_teams)
-		# While team1 and team2 are 'None'
-		while (team1.name == team2.name):
+		while (team1.false_team and team2.false_team):
 			team2 = choice(list_teams)
 		list_teams.remove(team2)
 
 		battle = Battle(round=round, game=last_game + game, tournament=tournament_obj, team_1=team1, team_2=team2)
 		battle.save_battle()
 
-		if ('None' in [team1.name, team2.name]):
-			battle.set_team_1_score(score=3) if team1.name != 'None' else battle.set_team_2_score(score=3)
+		if (team1.false_team or team2.false_team):
+			battle.set_scores(3, 0) if team2.false_team else battle.set_scores(0, 3)
 			battle.end_battle()
+
+		tournament_obj.change_status('running')
+
+
+def set_scores_battle(request, tournament_id, battle_id, team_1_score, team_2_score):
+	battle = get_object_or_404(Battle, id=battle_id)
+	if (battle.editable):
+		battle.set_scores(team_1_score, team_2_score)
+
+	return redirect(f'/tournament/{tournament_id}/knockout')
+
+
+def next_round(request, tournament_id):
+	"""
+		Generates the next round
+		...
+		Parameters:
+			(int) id: tournament id
+	"""
+	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
+	current_round = tournament_obj.current_round
+	battles = Battle.objects.filter(tournament=tournament_obj, round=current_round).order_by('game')
+	if (None not in [battle.get_winner() for battle in battles]):
+		tournament_obj.change_current_round()
+		new_round = tournament_obj.current_round
+		current_game = battles.last().game + 1
+
+		for i in range(0, battles.count(), 2):
+			team_1 = battles[i].end_battle()
+			team_2 = battles[i + 1].end_battle()
+			new_battle = Battle(round=new_round, game=current_game + i, tournament=tournament_obj,
+													team_1=team_1, team_2=team_2)
+			new_battle.save_battle()
+
+		tournament_obj.change_status('running')
+
+	return redirect(f'/tournament/{tournament_id}/knockout')
+
+
+def end_tournament(request, tournament_id):
+	"""
+		Ends the tournament
+		...
+		Parameters:
+			(int) id: tournament id
+	"""
+	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
+	tournament_obj.change_status('ended')
+
+	return redirect(f'/tournament/{tournament_id}/knockout')

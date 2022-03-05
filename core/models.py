@@ -9,6 +9,8 @@ class Tournament(models.Model):
 
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=100)
+	status = models.CharField(max_length=100, default='not started')
+	current_round = models.IntegerField(default=0)
 
 	def __str__(self):
 		return self.name
@@ -18,6 +20,25 @@ class Tournament(models.Model):
 		"""
 			Save a tournament
 		"""
+		self.save()
+
+
+	def change_status(self, status):
+		"""
+			Change tournament status
+			...
+			Parameters:
+			(string) status: new status
+		"""
+		self.status = status
+		self.save()
+
+
+	def change_current_round(self):
+		"""
+			Change current round
+		"""
+		self.current_round += 1
 		self.save()
 
 
@@ -57,6 +78,7 @@ class Team(models.Model):
 	goals_scored = models.IntegerField(default=0)
 	goals_conceded = models.IntegerField(default=0)
 	goals_difference = models.IntegerField(default=0)
+	false_team = models.BooleanField(default=False)
 
 	def __str__(self):
 		return self.name
@@ -161,28 +183,21 @@ class Battle(models.Model):
 	team_1_score = models.IntegerField(default=0)
 	team_2_score = models.IntegerField(default=0)
 	editable = models.BooleanField(default=True)
+	winner = models.CharField(max_length=8, default='None')
 
 	def __str__(self):
 		return f'Round {self.round} - Game {self.game}\n{self.team_1.name} {self.team_1_score}x{self.team_2_score} {self.team_2.name}'
 
 
-	def set_team_1_score(self, score):
+	def set_scores(self, team_1_score, team_2_score):
 		"""
-			Set score of team_1
+			Set scores of battle
 			Parameters:
-			score(int): score of team_1
+			team_1_score(int): score of team_1
+			team_2_score(int): score of team_2
 		"""
-		self.team_1_score = score
-		self.save()
-
-
-	def set_team_2_score(self, score):
-		"""
-			Set score of team_2
-			Parameters:
-			score(int): score of team_2
-		"""
-		self.team_2_score = score
+		self.team_1_score = team_1_score
+		self.team_2_score = team_2_score
 		self.save()
 
 
@@ -195,22 +210,22 @@ class Battle(models.Model):
 		if (self.team_1_score > self.team_2_score):
 			self.team_1.add_win()
 			self.team_2.add_defeat()
-			winner = self.team_1
+			self.winner = self.team_1.name
 		elif (self.team_1_score < self.team_2_score):
 			self.team_1.add_defeat()
 			self.team_2.add_win()
-			winner = self.team_2
+			self.winner = self.team_2.name
 		else:
 			self.team_1.add_draw()
 			self.team_2.add_draw()
-			winner = None
+			self.winner = 'None'
 
 		self.editable = False
 		self.team_1.save()
 		self.team_2.save()
 		self.save()
 
-		return winner
+		return self.get_winner()
 
 
 	def get_winner(self):

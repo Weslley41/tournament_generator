@@ -2,6 +2,7 @@ function editBattle(id) {
 	let scoreTeam1 = document.getElementById("inputScoreTeam1").value;
 	let scoreTeam2 = document.getElementById("inputScoreTeam2").value;
 	
+	open(`battle/${id}/scores/team1=${scoreTeam1}&team2=${scoreTeam2}`, '_self');
 }
 
 function setEditBattleValues(id) {

@@ -2,7 +2,7 @@ from django.urls import path
 from django.views import defaults
 
 from .views import index, tournament, tournament_edit, battle_infos
-from .tournament_actions import create_tournament, tournament_delete, generate_league, generate_knockout, insert_team, remove_team
+from .tournament_actions import *
 
 urlpatterns = [
 	path('', index),
@@ -15,6 +15,9 @@ urlpatterns = [
 	path('tournament/<int:id>/generate/knockout', generate_knockout),
 	path('tournament/<int:id>/edit/insert_team/<str:name>', insert_team),
 	path('tournament/<int:tournament_id>/edit/remove_team/<int:team_id>', remove_team),
+	path('tournament/<int:tournament_id>/battle/<int:battle_id>/scores/team1=<int:team_1_score>&team2=<int:team_2_score>', set_scores_battle),
+	path('tournament/<int:tournament_id>/next_round', next_round),
+	path('tournament/<int:tournament_id>/final', end_tournament),
 
 	path('battle/<int:id>', battle_infos),
 ]

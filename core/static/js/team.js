@@ -1,6 +1,8 @@
 function addTeam() {
-	let team_name = document.getElementById('inputTeamName').value;
-	open(window.location.href + '/insert_team/' + team_name, '_self');
+	if (!event.key || event.key === 'Enter') {
+		let team_name = document.getElementById('inputTeamName').value;
+		open(window.location.href + '/insert_team/' + team_name, '_self');
+	}
 }
 
 function removeTeam(team_id) {

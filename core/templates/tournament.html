@@ -12,50 +12,90 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </head>
 <body>
-	<nav class="navbar navbar-light bg-light">
-		<div class="container-fluid">
-			<a class="navbar-brand" href="#">Tournament: {{tournament.name}} - Battles</a>
+	<nav class="navbar navbar-dark bg-dark mb-4">
+		<div class="container-fluid mb-0 h1">
+			<p class="navbar-brand">Tournament: {{tournament.name}} - Battles</p>
 		</div>
 	</nav>
 
-	<div class="container-fluid">
-		<div class="row align-items-center justify-content-center">
+	{% if tournament.status == 'running' %}
+		<div class="d-grid gap-2 col-2 mx-auto">
+			<button data-bs-toggle="modal" data-bs-target="#nextRound" type="button" class="btn btn-outline-primary my-3 d-flex justify-content-evenly">
+				End Round<i class="bi bi-hammer"></i>
+			</button>
+		</div>
+	{% endif %}
+
+	<div class="container-fluid row align-items-center justify-content-center">
+		{% comment %} bracket A {% endcomment %}
+		<div class="row align-items-center justify-content-center" style="width: 40%">
 			{% for round in rounds %}
-				{% for battle in round.ladoA %}
-					<div class="col col-sm-3">
-						<div class="row">
-							<div class="col-lg-8">
-								{% if battle.editable %}
-									<small class="d-flex justify-content-between">Game {{battle.game}} <i onclick="setEditBattleValues({{battle.id}})" class="bi bi-pencil" data-bs-toggle="modal" data-bs-target="#editBattle"></i></small>
-								{% else %}
-									<small>Game {{battle.game}}</small>
-								{% endif %}
-								<p class="d-flex justify-content-between"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
-								<p class="d-flex justify-content-between"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
-							</div>
-						</div>
+				<div class="col col-lg-4">
+				{% for battle in round.bracket_A %}
+					<div class="col shadow-sm rounded mb-2">
+						{% if battle.editable %}
+							<small class="d-flex justify-content-between text-secondary p-1">Game {{battle.game}} <i onclick="setEditBattleValues({{battle.id}})" class="bi bi-pencil" data-bs-toggle="modal" data-bs-target="#editBattle" style="cursor: pointer"></i></small>
+							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
+							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+						{% else %}
+							<small class="d-flex justify-content-between text-secondary p-1">Game {{battle.game}}</small>
+							{% if battle.winner == "team_1" %}
+								<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
+								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+							{% else %}
+								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
+								<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+							{% endif %}
+						{% endif %}
 					</div>
 				{% endfor %}
+				</div>
 			{% endfor %}
 		</div>
-
-		<div class="row align-items-center justify-content-center">
+		{% comment %} Final {% endcomment %}
+		{% if final %}
+			<div class="col col-lg-2">
+				<div class="col shadow-sm shadow-primary rounded mb-2">
+					{% if final.editable %}
+						<small class="d-flex justify-content-between text-secondary p-1">Game {{final.game}} <i onclick="setEditBattleValues({{final.id}})" class="bi bi-pencil" data-bs-toggle="modal" data-bs-target="#editBattle" style="cursor: pointer"></i></small>
+						<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{final.team_1.name}}</span> <span>{{final.team_1_score}}</span></p>
+						<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{final.team_2.name}}</span> <span>{{final.team_2_score}}</span></p>
+					{% else %}
+						<small class="d-flex justify-content-between text-secondary p-1">Game {{final.game}}</small>
+						{% if final.winner == "team_1" %}
+							<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people-fill"></i> {{final.team_1.name}}</span> <span>{{final.team_1_score}}</span></p>
+							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{final.team_2.name}}</span> <span>{{final.team_2_score}}</span></p>
+						{% else %}
+							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{final.team_1.name}}</span> <span>{{final.team_1_score}}</span></p>
+							<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people"></i> {{final.team_2.name}}</span> <span>{{final.team_2_score}}</span></p>
+						{% endif %}
+					{% endif %}
+				</div>
+			</div>
+		{% endif %}
+		{% comment %} bracket B {% endcomment %}
+		<div class="row align-items-center justify-content-center" style="width: 40%">
 			{% for round in rounds reversed %}
-				{% for battle in round.ladoB %}
-					<div class="col col-sm-3">
-						<div class="row">
-							<div class="col-lg-8">
-								{% if battle.editable %}
-									<small class="d-flex justify-content-between">Game {{battle.game}} <i onclick="setEditBattleValues({{battle.id}})" class="bi bi-pencil" data-bs-toggle="modal" data-bs-target="#editBattle"></i></small>
-								{% else %}
-									<small>Game {{battle.game}}</small>
-								{% endif %}
-								<p class="d-flex justify-content-between"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
-								<p class="d-flex justify-content-between"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
-							</div>
-						</div>
-					</div>
+				<div class="col col-lg-4">
+				{% for battle in round.bracket_B %}
+				<div class="col shadow-sm rounded mb-2">
+					{% if battle.editable %}
+						<small class="d-flex justify-content-between text-secondary p-1">Game {{battle.game}} <i onclick="setEditBattleValues({{battle.id}})" class="bi bi-pencil" data-bs-toggle="modal" data-bs-target="#editBattle" style="cursor: pointer"></i></small>
+						<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
+						<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+					{% else %}
+						<small class="d-flex justify-content-between text-secondary p-1">Game {{battle.game}}</small>
+						{% if battle.winner == "team_1" %}
+							<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
+							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+						{% else %}
+							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
+							<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+						{% endif %}
+					{% endif %}
+				</div>
 				{% endfor %}
+				</div>
 			{% endfor %}
 		</div>
 	</div>
@@ -87,6 +127,31 @@
 		</div>
 	</div>
 
+	<!-- Modal - confirm round ended -->
+	<div class="modal fade" id="nextRound" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Confirm</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>New games will be displayed when confirming.</p>
+					<p class="text-danger">Confirm that all results are correct! Cannot edit previous rounds</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					{% if final %}
+						<button type="button" class="btn btn-primary" onclick="nextRound(final=true)">Confirm</button>
+					{% else %}
+						<button type="button" class="btn btn-primary" onclick="nextRound()">Confirm</button>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="{% static 'js/tournament.js' %}"></script>
 	<script src="{% static 'js/battle.js' %}"></script>
 </body>
 </html>

@@ -11,3 +11,7 @@ function generateTournament() {
 	let typeTournament = document.querySelector('input[name="typeTournament"]:checked').value;
 	open('generate/' + typeTournament, '_self');
 }
+
+function nextRound(final=false) {
+	open(final ? 'final' : 'next_round', '_self');
+}
