@@ -11,6 +11,8 @@ class Tournament(models.Model):
 	name = models.CharField(max_length=100)
 	status = models.CharField(max_length=100, default='not started')
 	current_round = models.IntegerField(default=0)
+	type = models.CharField(max_length=100, default='knockout')
+
 
 	def __str__(self):
 		return self.name
@@ -210,11 +212,11 @@ class Battle(models.Model):
 		if (self.team_1_score > self.team_2_score):
 			self.team_1.add_win()
 			self.team_2.add_defeat()
-			self.winner = self.team_1.name
+			self.winner = "team_1"
 		elif (self.team_1_score < self.team_2_score):
 			self.team_1.add_defeat()
 			self.team_2.add_win()
-			self.winner = self.team_2.name
+			self.winner = "team_2"
 		else:
 			self.team_1.add_draw()
 			self.team_2.add_draw()
@@ -264,3 +266,35 @@ class Battle(models.Model):
 			'team_2_score': self.team_2_score,
 			'editable': self.editable
 		}
+
+
+class unknownTeam():
+	"""
+		Unknown team model
+	"""
+	id = None
+	name = "Unknown"
+	tournament = None
+	wins = None
+	draws = None
+	defeats = None
+	goals_scored = None
+	goals_conceded = None
+	goals_difference = None
+	false_team = None
+
+
+class unknownBattle():
+	"""
+		Unknown battle model
+	"""
+	id = None
+	tournament = None
+	game = 0
+	round = 0
+	team_1 = unknownTeam()
+	team_2 = unknownTeam()
+	team_1_score = 0
+	team_2_score = 0
+	editable = False
+	winner = "None"

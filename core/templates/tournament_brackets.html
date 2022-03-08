@@ -13,14 +13,22 @@
 </head>
 <body>
 	<nav class="navbar navbar-dark bg-dark mb-4">
-		<div class="container-fluid mb-0 h1">
-			<p class="navbar-brand">Tournament: {{tournament.name}} - Battles</p>
-		</div>
+		<ul class="nav nav-tabs">
+			<li class="nav-item navbar-brand mb-0 ms-2">
+				{{tournament.name}}
+			</li>
+			<li class="nav-item">
+				<a class="nav-link active" aria-current="page" href="brackets">Brackets</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link text-light" href="battles">Battles</a>
+			</li>
+		</ul>
 	</nav>
 
 	{% if tournament.status == 'running' %}
 		<div class="d-grid gap-2 col-2 mx-auto">
-			<button data-bs-toggle="modal" data-bs-target="#nextRound" type="button" class="btn btn-outline-primary my-3 d-flex justify-content-evenly">
+			<button data-bs-toggle="modal" data-bs-target="#nextRound" type="button" class="btn btn-outline-primary mb-3 d-flex justify-content-evenly">
 				End Round<i class="bi bi-hammer"></i>
 			</button>
 		</div>
@@ -42,9 +50,12 @@
 							{% if battle.winner == "team_1" %}
 								<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
 								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
-							{% else %}
+							{% elif battle.winner == "team_2" %}
 								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
 								<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+							{% else %}
+								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
+								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
 							{% endif %}
 						{% endif %}
 					</div>
@@ -57,17 +68,20 @@
 			<div class="col col-lg-2">
 				<div class="col shadow-sm shadow-primary rounded mb-2">
 					{% if final.editable %}
-						<small class="d-flex justify-content-between text-secondary p-1">Game {{final.game}} <i onclick="setEditBattleValues({{final.id}})" class="bi bi-pencil" data-bs-toggle="modal" data-bs-target="#editBattle" style="cursor: pointer"></i></small>
+						<small class="d-flex justify-content-between text-secondary p-1">Final - Game {{final.game}} <i onclick="setEditBattleValues({{final.id}})" class="bi bi-pencil" data-bs-toggle="modal" data-bs-target="#editBattle" style="cursor: pointer"></i></small>
 						<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{final.team_1.name}}</span> <span>{{final.team_1_score}}</span></p>
 						<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{final.team_2.name}}</span> <span>{{final.team_2_score}}</span></p>
 					{% else %}
-						<small class="d-flex justify-content-between text-secondary p-1">Game {{final.game}}</small>
+						<small class="d-flex justify-content-between text-secondary p-1">Final - Game {{final.game}}</small>
 						{% if final.winner == "team_1" %}
 							<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people-fill"></i> {{final.team_1.name}}</span> <span>{{final.team_1_score}}</span></p>
 							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{final.team_2.name}}</span> <span>{{final.team_2_score}}</span></p>
-						{% else %}
+						{% elif final.winner == "team_2" %}
 							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{final.team_1.name}}</span> <span>{{final.team_1_score}}</span></p>
 							<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people"></i> {{final.team_2.name}}</span> <span>{{final.team_2_score}}</span></p>
+						{% else %}
+							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{final.team_1.name}}</span> <span>{{final.team_1_score}}</span></p>
+							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{final.team_2.name}}</span> <span>{{final.team_2_score}}</span></p>
 						{% endif %}
 					{% endif %}
 				</div>
@@ -78,22 +92,25 @@
 			{% for round in rounds reversed %}
 				<div class="col col-lg-4">
 				{% for battle in round.bracket_B %}
-				<div class="col shadow-sm rounded mb-2">
-					{% if battle.editable %}
-						<small class="d-flex justify-content-between text-secondary p-1">Game {{battle.game}} <i onclick="setEditBattleValues({{battle.id}})" class="bi bi-pencil" data-bs-toggle="modal" data-bs-target="#editBattle" style="cursor: pointer"></i></small>
-						<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
-						<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
-					{% else %}
-						<small class="d-flex justify-content-between text-secondary p-1">Game {{battle.game}}</small>
-						{% if battle.winner == "team_1" %}
-							<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
+					<div class="col shadow-sm rounded mb-2">
+						{% if battle.editable %}
+							<small class="d-flex justify-content-between text-secondary p-1">Game {{battle.game}} <i onclick="setEditBattleValues({{battle.id}})" class="bi bi-pencil" data-bs-toggle="modal" data-bs-target="#editBattle" style="cursor: pointer"></i></small>
+							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
 							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
 						{% else %}
-							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
-							<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+							<small class="d-flex justify-content-between text-secondary p-1">Game {{battle.game}}</small>
+							{% if battle.winner == "team_1" %}
+								<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
+								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+							{% elif battle.winner == "team_2" %}
+								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
+								<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+							{% else %}
+								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
+								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+							{% endif %}
 						{% endif %}
-					{% endif %}
-				</div>
+					</div>
 				{% endfor %}
 				</div>
 			{% endfor %}

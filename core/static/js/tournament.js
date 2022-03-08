@@ -1,6 +1,8 @@
 function createTournament() {
-	let tournament_name = document.getElementById('inputTournamentName').value;
-	open('tournament/create/' + tournament_name, '_self');
+	if (!event.key || event.key === 'Enter') {
+		let tournament_name = document.getElementById('inputTournamentName').value;
+		open('tournament/create/' + tournament_name, '_self');
+	}
 }
 
 function deleteTournament() {

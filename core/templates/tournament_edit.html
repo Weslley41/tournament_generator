@@ -11,7 +11,7 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </head>
-<body>
+<body onload="document.getElementById('inputTeamName').select()">
 	<nav class="navbar navbar-light bg-light">
 		<div class="container-fluid">
 			<span class=" d-flex justify-content-start">
@@ -33,9 +33,9 @@
 
 		<h2 class="mt-2">{{count_teams}} Registered teams</h2>
 
-		<ol class="list-group col-lg-3">
+		<ol class="d-flex flex-wrap">
 			{% for team in teams %}
-			<li class="list-group-item d-flex justify-content-between align-items-center">
+			<li class="list-group-item d-flex justify-content-between align-items-center" style="width: 250px">
 				{{team.name}}
 				<button class="btn btn-danger" onclick="removeTeam({{team.id}})">Delete</button>
 			</li>

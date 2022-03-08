@@ -1,7 +1,7 @@
 from django.urls import path
 from django.views import defaults
 
-from .views import index, tournament, tournament_edit, battle_infos
+from .views import index, tournament, tournament_edit, battle_infos, tournament_battles, tournament_brackets
 from .tournament_actions import *
 
 urlpatterns = [
@@ -18,6 +18,9 @@ urlpatterns = [
 	path('tournament/<int:tournament_id>/battle/<int:battle_id>/scores/team1=<int:team_1_score>&team2=<int:team_2_score>', set_scores_battle),
 	path('tournament/<int:tournament_id>/next_round', next_round),
 	path('tournament/<int:tournament_id>/final', end_tournament),
+	path('tournament/<int:id>/knockout/brackets', tournament_brackets),
+	path('tournament/<int:id>/knockout/battles', tournament_battles),
+	path('tournament/<int:id>/league/battles', tournament_battles),
 
 	path('battle/<int:id>', battle_infos),
 ]
