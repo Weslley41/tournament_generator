@@ -18,13 +18,6 @@ class Tournament(models.Model):
 		return self.name
 
 
-	def save_tournament(self):
-		"""
-			Save a tournament
-		"""
-		self.save()
-
-
 	def change_status(self, status):
 		"""
 			Change tournament status
@@ -138,13 +131,6 @@ class Team(models.Model):
 		self.save()
 
 
-	def save_team(self):
-		"""
-			Save team
-		"""
-		self.save()
-
-
 	def remove_team(self):
 		"""
 			Remove team
@@ -242,13 +228,6 @@ class Battle(models.Model):
 			return self.team_2
 		else:
 			return None
-
-
-	def save_battle(self):
-		"""
-			Save battle
-		"""
-		self.save()
 
 
 	def battleToJSON(self):

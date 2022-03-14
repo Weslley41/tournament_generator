@@ -5,7 +5,7 @@ from .brackets_len import brackets_len
 
 def create_tournament(request, name):
 	tournament_obj = Tournament(name=name)
-	tournament_obj.save_tournament()
+	tournament_obj.save()
 	
 	return redirect(f'/tournament/{tournament_obj.id}/edit')
 
@@ -34,7 +34,7 @@ def insert_team(request, id, name):
 
 	tournament_obj = get_object_or_404(Tournament, id=id)
 	team = Team(name=name, tournament=tournament_obj)
-	team.save_team()
+	team.save()
 
 	return redirect(f'/tournament/{id}/edit')
 
@@ -61,12 +61,12 @@ def generate_league(request, id):
 
 def generate_knockout(request, id):
 	"""
-		Generate a knockout tournament
+		Prepare a knockout tournament for first round
 		...
 		Parameters:
 		(int) id: tournament id
 	"""
-	from random import shuffle
+
 	tournament_obj = get_object_or_404(Tournament, id=id)
 	list_teams = Team.objects.filter(tournament=id)
 
@@ -76,22 +76,24 @@ def generate_knockout(request, id):
 	count_teams = len(list_teams)
 	len_brackets = brackets_len(count_teams)
 
+	# Add false teams, if necessary
 	for i in range (len_brackets - count_teams):
-		Team(name='No Team', tournament=tournament_obj, false_team=True).save_team()
+		Team(name='No Team', tournament=tournament_obj, false_team=True).save()
 	list_teams = list(Team.objects.filter(tournament=id))
 
-	generate_battles(list_teams, tournament_obj)
+	generate_first_battles_knockout(list_teams, tournament_obj)
 	return redirect(f'/tournament/{id}/knockout')
 
 
-def generate_battles(list_teams, tournament_obj):
+def generate_first_battles_knockout(list_teams, tournament_obj):
 	"""
-		Generates the battles
+		Generates the battles of first round
 		...
 		Parameters:
 			(list) list_teams: list of teams
 			(object) tournament_obj: tournament object
 	"""
+
 	from random import choice
 
 	count_teams = len(list_teams)
@@ -108,7 +110,7 @@ def generate_battles(list_teams, tournament_obj):
 		list_teams.remove(team2)
 
 		battle = Battle(round=round, game=last_game + game, tournament=tournament_obj, team_1=team1, team_2=team2)
-		battle.save_battle()
+		battle.save()
 
 		if (team1.false_team or team2.false_team):
 			battle.set_scores(3, 0) if team2.false_team else battle.set_scores(0, 3)
@@ -118,20 +120,31 @@ def generate_battles(list_teams, tournament_obj):
 
 
 def set_scores_battle(request, tournament_id, battle_id, team_1_score, team_2_score):
+	"""
+		Set the scores of a battle
+		...
+		Parameters:
+			(int) tournament_id: tournament id
+			(int) battle_id: battle id
+			(int) team_1_score: score of team 1
+			(int) team_2_score: score of team 2
+	"""
+
 	battle = get_object_or_404(Battle, id=battle_id)
 	if (battle.editable):
 		battle.set_scores(team_1_score, team_2_score)
 
-	return redirect(f'/tournament/{tournament_id}/knockout')
+	return redirect(f'/tournament/{tournament_id}/{tournament.type}')
 
 
-def next_round(request, tournament_id):
+def next_round_knockout(request, tournament_id):
 	"""
-		Generates the next round
+		Generates the next round of knockout tournament
 		...
 		Parameters:
 			(int) id: tournament id
 	"""
+
 	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
 	current_round = tournament_obj.current_round
 	battles = Battle.objects.filter(tournament=tournament_obj, round=current_round).order_by('game')
@@ -145,7 +158,7 @@ def next_round(request, tournament_id):
 			team_2 = battles[i + 1].end_battle()
 			new_battle = Battle(round=new_round, game=current_game + i, tournament=tournament_obj,
 													team_1=team_1, team_2=team_2)
-			new_battle.save_battle()
+			new_battle.save()
 
 		tournament_obj.change_status('running')
 
@@ -159,7 +172,8 @@ def end_tournament(request, tournament_id):
 		Parameters:
 			(int) id: tournament id
 	"""
+
 	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
 	tournament_obj.change_status('ended')
 
-	return redirect(f'/tournament/{tournament_id}/knockout')
+	return redirect(f'/tournament/{tournament_id}/{tournament.type}')

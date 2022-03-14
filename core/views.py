@@ -4,21 +4,24 @@ from django.http import JsonResponse
 from core.models import Tournament, Team, Battle, unknownBattle
 
 def index(request):
-
+	""" Index page """
 	return render(request, 'index.html')
 
 
 def tournament(request, id):
+	""" Redirect to tournament page	"""
+
 	tournament_obj = get_object_or_404(Tournament, id=id)
-	count_battles = Battle.objects.filter(tournament=tournament_obj, round=tournament_obj.current_round).count()
 
 	if (tournament_obj.type == 'knockout'):
-		return redirect('/tournament/' + str(id) + '/knockout/brackets')
+		return redirect('/tournament/' + str(id) + '/knockout/battles')
 	else:
 		return redirect('/tournament/' + str(id) + '/league/battles')
 
 
 def tournament_brackets(request, id):
+	""" Tournament brackets page """
+
 	tournament_obj = get_object_or_404(Tournament, id=id)
 	rounds = Battle.objects.values_list('round').filter(tournament=tournament_obj).distinct().order_by('round')
 	context = {
@@ -64,6 +67,8 @@ def tournament_brackets(request, id):
 
 
 def tournament_battles(request, id):
+	""" Tournament battles page """
+
 	tournament_obj = get_object_or_404(Tournament, id=id)
 	rounds = Battle.objects.values_list('round').filter(tournament=tournament_obj).distinct().order_by('round')
 
@@ -83,6 +88,8 @@ def tournament_battles(request, id):
 
 
 def tournament_edit(request, id):
+	""" Tournament edit page """
+
 	tournament_obj = get_object_or_404(Tournament, id=id)
 
 	try:
@@ -101,6 +108,16 @@ def tournament_edit(request, id):
 
 
 def battle_infos(request, id):
+	"""
+		Get battle infos
+		...
+		Parameters:
+			(int) id: battle id
+
+		Returns:
+			(JsonResponse) battle infos
+	"""
+
 	battle = get_object_or_404(Battle, id=id).battleToJSON()
 
 	context = {
@@ -111,4 +128,6 @@ def battle_infos(request, id):
 
 
 def error404(request, exception):
+	""" Error 404 page """
+
 	return render(request, 'tournament_not_found.html')
