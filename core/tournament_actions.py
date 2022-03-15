@@ -56,7 +56,50 @@ def remove_team(request, tournament_id, team_id):
 
 
 def generate_league(request, id):
-	pass
+	"""
+		Generate a league tournament
+	"""
+
+	from random import shuffle
+
+	tournament_obj = get_object_or_404(Tournament, id=id)
+	tournament_obj.type = 'league'
+	tournament_obj.save()
+
+	list_teams = list(Team.objects.filter(tournament=tournament_obj))
+	n_rounds = len(list_teams) - 1
+	shuffle(list_teams)
+
+	round = game = 1
+	battles = {}
+	# First half
+	for i in range(n_rounds):
+		battles[f'round_{round}'] = []
+		for j in range(len(list_teams) // 2):
+			team_1 = list_teams[j]
+			team_2 = list_teams[-(j + 1)]
+			battle = Battle(round=round, game=game, tournament=tournament_obj, team_1=team_1, team_2=team_2)
+			battles[f'round_{round}'].append(battle)
+			battle.save()
+			game += 1
+
+		round += 1
+		list_teams.append(list_teams.pop(0))
+
+	# Second half
+	for n_round in range(1, n_rounds + 1):
+		for first_battle in battles[f'round_{n_round}']:
+			team_1 = first_battle.team_2
+			team_2 = first_battle.team_1
+			battle = Battle(round=round, game=game, tournament=tournament_obj, team_1=team_1, team_2=team_2)
+			battle.save()
+			game += 1
+
+		round += 1
+
+	tournament_obj.change_status('running')
+	tournament_obj.change_current_round()
+	return redirect(f'/tournament/{id}/league/battles')
 
 
 def generate_knockout(request, id):

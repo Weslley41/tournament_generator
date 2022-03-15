@@ -36,6 +36,8 @@ class Tournament(models.Model):
 		self.current_round += 1
 		self.save()
 
+		return self.current_round
+
 
 class Team(models.Model):
 	"""

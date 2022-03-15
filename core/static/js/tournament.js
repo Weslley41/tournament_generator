@@ -11,6 +11,12 @@ function deleteTournament() {
 
 function generateTournament() {
 	let typeTournament = document.querySelector('input[name="typeTournament"]:checked').value;
+	let btnGenerate = document.getElementById('btn-generate-tournament');
+	let btnLoading = document.getElementById('btn-loading');
+
+	btnGenerate.classList.add('visually-hidden');
+	btnLoading.classList.remove('visually-hidden');
+
 	open('generate/' + typeTournament, '_self');
 }
 

@@ -75,6 +75,7 @@ def tournament_battles(request, id):
 	context = {
 		'tournament': tournament_obj,
 		'rounds': [],
+		'n_rounds': range(1, rounds.count() + 1),
 	}
 
 	for round in rounds:

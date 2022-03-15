@@ -58,7 +58,11 @@
 					</label>
 				</div>
 			</div>
-			<button class="btn btn-primary" onclick="generateTournament()">Generate Tournament</button>
+			<button class="btn btn-primary" onclick="generateTournament()" id="btn-generate-tournament">Generate Tournament</button>
+			<button class="btn btn-primary visually-hidden" id="btn-loading" type="button" disabled>
+				<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+				Loading...
+			</button>
 		</div>
 	</div>
 
