@@ -1,4 +1,5 @@
 from django.shortcuts import redirect, get_object_or_404
+from django.http import HttpResponse
 
 from .models import Tournament, Team, Battle
 from .brackets_len import brackets_len
@@ -162,30 +163,48 @@ def generate_first_battles_knockout(list_teams, tournament_obj):
 		tournament_obj.change_status('running')
 
 
-def set_scores_battle(request, tournament_id, battle_id, team_1_score, team_2_score):
+def set_scores_battle(request, tournament_id, tournament_type, game, team_1_score, team_2_score):
 	"""
 		Set the scores of a battle
 		...
 		Parameters:
 			(int) tournament_id: tournament id
-			(int) battle_id: battle id
+			(str) tournament_type: tournament type
+			(int) game: game number
 			(int) team_1_score: score of team 1
 			(int) team_2_score: score of team 2
 	"""
 
-	battle = get_object_or_404(Battle, id=battle_id)
+	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
+	battle = get_object_or_404(Battle, tournament=tournament_obj, game=game)
 	if (battle.editable):
 		battle.set_scores(team_1_score, team_2_score)
 
-	return redirect(f'/tournament/{tournament_id}/{tournament.type}')
+	# return redirect(f'/tournament/{tournament_id}/{tournament_type}/battles')
+	return HttpResponse(status=200)
 
 
-def next_round_knockout(request, tournament_id):
+def next_round(request, tournament_id, tournament_type):
+	"""
+		Redirect to the next round
+		...
+		Parameters:
+			(int) tournament_id: tournament id
+			(str) tournament_type: tournament type
+	"""
+
+	if (tournament_type == 'league'):
+		return next_round_league(tournament_id)
+	elif (tournament_type == 'knockout'):
+		return next_round_knockout(tournament_id)
+
+
+def next_round_knockout(tournament_id):
 	"""
 		Generates the next round of knockout tournament
 		...
 		Parameters:
-			(int) id: tournament id
+			(int) tournament_id: tournament id
 	"""
 
 	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
@@ -205,7 +224,33 @@ def next_round_knockout(request, tournament_id):
 
 		tournament_obj.change_status('running')
 
-	return redirect(f'/tournament/{tournament_id}/knockout')
+	return redirect(f'/tournament/{tournament_id}/knockout/battles')
+
+
+def next_round_league(tournament_id):
+	"""
+		Ends the battles of the round
+		...
+		Parameters:
+			(obj) tournament: a tournament object
+	"""
+
+	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
+	current_round = tournament_obj.current_round
+
+	battles = Battle.objects.filter(tournament=tournament_obj, round=current_round).order_by('game')
+	for battle in battles:
+		battle.end_battle()
+
+	n_rounds = (Team.objects.filter(tournament=tournament_obj).count() - 1) * 2
+	if (current_round == n_rounds):
+		tournament_obj.change_status('ended')
+
+		return redirect(f'/tournament/{tournament_id}/league/table')
+	else:
+		tournament_obj.change_current_round()
+
+	return redirect(f'/tournament/{tournament_id}/league/battles')
 
 
 def end_tournament(request, tournament_id):
@@ -219,4 +264,4 @@ def end_tournament(request, tournament_id):
 	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
 	tournament_obj.change_status('ended')
 
-	return redirect(f'/tournament/{tournament_id}/{tournament.type}')
+	return redirect(f'/tournament/{tournament_id}/{tournament_obj.type}')

@@ -5,7 +5,7 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Tournament</title>
+	<title>Tournament - Battles</title>
 	<!-- Bootstrap -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
@@ -28,7 +28,7 @@
 				{% if tournament.type == "knockout" %}
 					<a class="nav-link text-light" href="brackets">Brackets</a>
 				{% else %}
-					<a class="nav-link text-light" href="table">Table</a>
+					<a class="nav-link text-light" href="table">Ranking table</a>
 				{% endif %}
 			</li>
 			<li class="nav-item">
@@ -38,7 +38,12 @@
 	</nav>
 
 	<nav aria-label="Page navigation" id="pagination">
-		<ul class="pagination pagination-sm justify-content-center">
+		{% if tournament.status == "running" %}
+			<h5 class="ms-4">Current round: {{ tournament.current_round }}</h5>
+		{% else %}
+			<h5 class="ms-4">Current round: {{ tournament.status }}</h5>
+		{% endif %}
+		<ul class="pagination pagination-sm justify-content-center d-flex flex-wrap">
 			{% for n_round in n_rounds %}
 				<li class="page-item"><a class="page-link" href="#round-{{ n_round }}">{{ n_round }}</a></li>
 			{% endfor %}
@@ -50,30 +55,30 @@
 			{% for round in rounds %}
 				<p class="list-group-item active d-flex justify-content-between align-items-center" id="round-{{round.round}}">
 					Round {{ round.round }}
-					{% if round.round == tournament.current_round %}
+					{% if round.round == tournament.current_round and tournament.status == "running" %}
 						<span data-bs-toggle="modal" data-bs-target="#nextRound" class="btn btn-primary">
 							End Round<i class="bi bi-hammer ms-2"></i>
 						</span>
 					{% endif %}
 				</p>
-				<div class="d-flex flex-wrap">
+				<div class="d-flex flex-wrap justify-content-around">
 				{% for battle in round.battles %}
-					<div style="width: 250px">
+					<div id="game-{{battle.game}}" style="width: 250px">
 						{% if battle.editable %}
-							<small class="d-flex justify-content-between text-secondary p-1">Game {{battle.game}} <i onclick="setEditBattleValues({{battle.id}})" class="bi bi-pencil" data-bs-toggle="modal" data-bs-target="#editBattle" style="cursor: pointer"></i></small>
-							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
-							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+							<small class="d-flex justify-content-between text-secondary p-1">Game {{battle.game}} <i onclick="setEditBattleValues({{battle.game}})" class="bi bi-pencil" data-bs-toggle="modal" data-bs-target="#editBattle" style="cursor: pointer"></i></small>
+							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span id="team_score">{{battle.team_1_score}}</span></p>
+							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span id="team_score">{{battle.team_2_score}}</span></p>
 						{% else %}
 							<small class="d-flex justify-content-between text-secondary p-1">Game {{battle.game}}</small>
 							{% if battle.winner == "team_1" %}
-								<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
-								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+								<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span id="team_score">{{battle.team_1_score}}</span></p>
+								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span id="team_score">{{battle.team_2_score}}</span></p>
 							{% elif battle.winner == "team_2" %}
-								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
-								<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span id="team_score">{{battle.team_1_score}}</span></p>
+								<p class="d-flex justify-content-between text-primary p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span id="team_score">{{battle.team_2_score}}</span></p>
 							{% else %}
-								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span>{{battle.team_1_score}}</span></p>
-								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span>{{battle.team_2_score}}</span></p>
+								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span id="team_score">{{battle.team_1_score}}</span></p>
+								<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span id="team_score">{{battle.team_2_score}}</span></p>
 							{% endif %}
 						{% endif %}
 					</div>
@@ -103,7 +108,7 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-secondary" id="btnCloseEditBattle" data-bs-dismiss="modal">Close</button>
 					<button type="button" class="btn btn-primary" id="btnSaveBattleChanges">Save changes</button>
 				</div>
 			</div>
@@ -119,7 +124,9 @@
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<p>New games will be displayed when confirming.</p>
+					{% if tournament.type == "knockout" %}
+						<p>New games will be displayed when confirming.</p>
+					{% endif %}
 					<p class="text-danger">Confirm that all results are correct! Cannot edit previous rounds</p>
 				</div>
 				<div class="modal-footer">

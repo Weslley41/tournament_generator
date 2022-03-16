@@ -88,6 +88,24 @@ def tournament_battles(request, id):
 	return render(request, 'tournament_battles.html', context)
 
 
+def tournament_table(request, id):
+	""" Tournament tables page """
+
+	tournament_obj = get_object_or_404(Tournament, id=id)
+	teams = Team.objects.filter(tournament=tournament_obj).order_by('-points', '-goals_difference', '-goals_scored')
+	context = {
+		'tournament': tournament_obj,
+		'teams': [],
+	}
+	for pos, team in enumerate(teams):
+		context['teams'].append({
+			'position': pos + 1,
+			'team': team,
+		})
+
+	return render(request, 'tournament_table.html', context)
+
+
 def tournament_edit(request, id):
 	""" Tournament edit page """
 
@@ -108,18 +126,20 @@ def tournament_edit(request, id):
 	return render(request, 'tournament_edit.html', context)
 
 
-def battle_infos(request, id):
+def battle_infos(request, tournament_id, tournament_type, game):
 	"""
 		Get battle infos
 		...
 		Parameters:
 			(int) id: battle id
+			(int) game: game number
 
 		Returns:
 			(JsonResponse) battle infos
 	"""
 
-	battle = get_object_or_404(Battle, id=id).battleToJSON()
+	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
+	battle = get_object_or_404(Battle, tournament=tournament_obj, game=game).battleToJSON()
 
 	context = {
 		'battle': battle,

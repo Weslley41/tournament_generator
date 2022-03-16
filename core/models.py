@@ -69,6 +69,7 @@ class Team(models.Model):
 	id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=100)
 	tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+	points = models.IntegerField(default=0)
 	wins = models.IntegerField(default=0)
 	draws = models.IntegerField(default=0)
 	defeats = models.IntegerField(default=0)
@@ -86,6 +87,7 @@ class Team(models.Model):
 			Add win to team
 		"""
 		self.wins += 1
+		self.points += 3
 		self.save()
 
 
@@ -94,6 +96,7 @@ class Team(models.Model):
 			Add draw to team
 		"""
 		self.draws += 1
+		self.points += 1
 		self.save()
 
 
@@ -111,7 +114,7 @@ class Team(models.Model):
 			Parameters:
 			goals(int): number of goals scored
 		"""
-		self.goals_scored = goals
+		self.goals_scored += goals
 		self.save()
 
 
@@ -121,7 +124,7 @@ class Team(models.Model):
 			Parameters:
 			goals(int): number of goals conceded
 		"""
-		self.goals_conceded = goals
+		self.goals_conceded += goals
 		self.save()
 
 
@@ -209,6 +212,16 @@ class Battle(models.Model):
 			self.team_1.add_draw()
 			self.team_2.add_draw()
 			self.winner = 'None'
+
+		# Goals scored
+		self.team_1.set_goals_scored(self.team_1_score)
+		self.team_2.set_goals_scored(self.team_2_score)
+		# Goals conceded
+		self.team_1.set_goals_scored(self.team_2_score)
+		self.team_2.set_goals_scored(self.team_1_score)
+		# Goals difference
+		self.team_1.set_goals_difference()
+		self.team_2.set_goals_difference()
 
 		self.editable = False
 		self.team_1.save()
