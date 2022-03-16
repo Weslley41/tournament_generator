@@ -217,8 +217,8 @@ class Battle(models.Model):
 		self.team_1.set_goals_scored(self.team_1_score)
 		self.team_2.set_goals_scored(self.team_2_score)
 		# Goals conceded
-		self.team_1.set_goals_scored(self.team_2_score)
-		self.team_2.set_goals_scored(self.team_1_score)
+		self.team_1.set_goals_conceded(self.team_2_score)
+		self.team_2.set_goals_conceded(self.team_1_score)
 		# Goals difference
 		self.team_1.set_goals_difference()
 		self.team_2.set_goals_difference()
