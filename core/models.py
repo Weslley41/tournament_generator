@@ -12,10 +12,31 @@ class Tournament(models.Model):
 	status = models.CharField(max_length=100, default='not started')
 	current_round = models.IntegerField(default=0)
 	type = models.CharField(max_length=100, default='knockout')
+	last_accessed = models.DateTimeField(auto_now=True)
 
 
 	def __str__(self):
 		return self.name
+
+
+	def update_last_accessed(self):
+		""" Update last accessed time """
+		from datetime import datetime
+
+		self.last_accessed = datetime.now()
+		self.save()
+
+
+	def generate_id(self):
+		""" Generate a random id """
+		from random import choice
+		from string import digits
+
+		self.id = int(''.join([ choice(digits) for i in range(16)]))
+		while Tournament.objects.filter(id=self.id).exists():
+			self.id = int(''.join([ choice(digits) for i in range(16)]))
+
+		self.save()
 
 
 	def change_status(self, status):

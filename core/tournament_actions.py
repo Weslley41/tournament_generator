@@ -1,12 +1,24 @@
 from django.shortcuts import redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from .models import Tournament, Team, Battle
 from .brackets_len import brackets_len
 
+
+def check_expired_tournaments(request):
+	""" Check and delete expired tournaments """
+
+	from datetime import datetime, timedelta, timezone
+
+	expire_date = (datetime.now() - timedelta(days=3)).replace(tzinfo=timezone.utc)
+	tournaments_expired = Tournament.objects.filter(last_accessed__lte=expire_date).delete()
+
+	return HttpResponse(status=200)
+
+
 def create_tournament(request, name):
 	tournament_obj = Tournament(name=name)
-	tournament_obj.save()
+	tournament_obj.generate_id()
 	
 	return redirect(f'/tournament/{tournament_obj.id}/edit')
 
@@ -23,6 +35,50 @@ def tournament_delete(request, id):
 	tournament_obj.delete()
 
 	return redirect('/')
+
+
+def tournament_infos(request, id):
+	"""
+	Returns the infos of a tournament
+	...
+	Parameters:
+		(int) id: tournament id
+	Returns:
+		(dict) tournament: name, type, status, current_round, count_teams
+	"""
+
+	tournament_obj = get_object_or_404(Tournament, id=id)
+	context = {
+		'name': tournament_obj.name,
+		'type': tournament_obj.type,
+		'status': tournament_obj.status,
+		'current_round': tournament_obj.current_round,
+		'count_teams': Team.objects.filter(tournament=id).count(),
+	}
+
+	return JsonResponse(context)
+
+
+def battle_infos(request, tournament_id, tournament_type, game):
+	"""
+		Get battle infos
+		...
+		Parameters:
+			(int) id: battle id
+			(int) game: game number
+
+		Returns:
+			(JsonResponse) battle infos
+	"""
+
+	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
+	battle = get_object_or_404(Battle, tournament=tournament_obj, game=game).battleToJSON()
+
+	context = {
+		'battle': battle,
+	}
+
+	return JsonResponse(context)
 
 
 def insert_team(request, id, name):
@@ -180,7 +236,6 @@ def set_scores_battle(request, tournament_id, tournament_type, game, team_1_scor
 	if (battle.editable):
 		battle.set_scores(team_1_score, team_2_score)
 
-	# return redirect(f'/tournament/{tournament_id}/{tournament_type}/battles')
 	return HttpResponse(status=200)
 
 

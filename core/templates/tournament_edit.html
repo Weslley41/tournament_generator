@@ -5,13 +5,13 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Tournament Generator</title>
+	<title>Tournament Edit</title>
 	<!-- Bootstrap -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </head>
-<body onload="document.getElementById('inputTeamName').select()">
+<body onload="setCookie({{ tournament.id }});document.getElementById('inputTeamName').select()">
 	<nav class="navbar navbar-light bg-light">
 		<div class="container-fluid">
 			<span class=" d-flex justify-content-start">
@@ -20,39 +20,55 @@
 					<p class="lead mb-0 ms-1 d-flex align-items-center">{{tournament.name}}</p>
 				</p>
 			</span>
-			<button class="btn btn-danger" onclick="deleteTournament()" title="Delete Tournament"><i class="bi bi-trash"></i></button>
+			<span>
+				<a class="btn btn-secondary" href="/" title="Go back to home"><i class="bi bi-house-door-fill"></i></a>
+				<button class="btn btn-danger" onclick="deleteTournament({{ tournament.id }})" title="Delete Tournament"><i class="bi bi-trash"></i></button>
+			</span>
 		</div>
 	</nav>
 
 	<div class="container-fluid">
+		{% if tournament.status == 'not_started' %}
 		<div class="input-group flex-nowrap">
 			<span class="input-group-text"><i class="bi bi-people-fill"></i></span>
 			<input class="form-control" type="text" id="inputTeamName" placeholder="Team name" onkeyup="addTeam()">
 			<button class="btn btn-secondary" onclick="addTeam()">Insert Team</button>
 		</div>
+		{% endif %}
 
 		<h2 class="mt-2">{{count_teams}} Registered teams</h2>
 
 		<ol class="d-flex flex-wrap">
 			{% for team in teams %}
-			<li class="list-group-item d-flex justify-content-between align-items-center" style="width: 250px">
+			<li class="list-group-item d-flex justify-content-between align-items-center border" style="width: 250px">
 				{{team.name}}
-				<button class="btn btn-danger" onclick="removeTeam({{team.id}})">Delete</button>
+				{% if tournament.status == 'not_started' %}
+					<button class="btn btn-danger" onclick="removeTeam({{team.id}})">Delete</button>
+				{% endif %}
 			</li>
 			{% endfor %}
 		</ol>
 
+		{% if tournament.status == 'not_started' %}
 		<div class="d-flex flex-column justify-content-center">
 			<div class="d-flex flex-row justify-content-center">
 				<div class="form-check form-check-inline">
-					<input class="form-check-input" type="radio" name="typeTournament" id="typeTournament1" value="knockout" checked>
+					{% if tournament.type == 'knockout' %}
+						<input class="form-check-input" type="radio" name="typeTournament" id="typeTournament1" value="knockout" checked>
+					{% else %}
+						<input class="form-check-input" type="radio" name="typeTournament" id="typeTournament1" value="knockout">
+					{% endif %}
 					<label class="form-check-label" for="typeTournament1">
 						Knock-out
 					</label>
 				</div>
 
 				<div class="form-check form-check-inline">
-					<input class="form-check-input" type="radio" name="typeTournament" id="typeTournament2" value="league">
+					{% if tournament.type == 'league' %}
+						<input class="form-check-input" type="radio" name="typeTournament" id="typeTournament2" value="league" checked>
+					{% else %}
+						<input class="form-check-input" type="radio" name="typeTournament" id="typeTournament2" value="league">
+					{% endif %}
 					<label class="form-check-label" for="typeTournament2">
 						League
 					</label>
@@ -64,6 +80,7 @@
 				Loading...
 			</button>
 		</div>
+		{% endif %}
 	</div>
 
 	<script src=" {% static 'js/team.js' %} "></script>

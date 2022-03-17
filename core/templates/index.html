@@ -11,22 +11,45 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </head>
-<body>
+<body onload="getCookie()">
 	<nav class="navbar navbar-light bg-light">
 		<div class="container-fluid d-flex justify-content-start">
-			<p class="h2">
-				Tournament Generator
-				<p class="lead mb-0 ms-1">create your tournament here!</p>
-			</p>
+			<p class="h2">Tournament Generator</p>
+			<p class="lead mb-0 ms-1">create your tournament here!</p>
 		</div>
 	</nav>
 
-	<div class="container col-lg-6">
+	<div class="container col-lg-6 mt-3" id="boxCreateTournament">
 		<div class="input-group">
 			<input type="text" class="form-control" id="inputTournamentName" placeholder="Tournament name" onkeyup="createTournament()">
 			<span class="input-group-btn">
 				<button class="btn btn-primary" type="button" onclick="createTournament()">Create!</button>
 			</span>
+		</div>
+	</div>
+
+	<div class="container-fluid">
+		<h3>Infos</h3>
+		<p>Tournaments will remove after 3 days off.</p>
+		<p>To create another tournament, delete the current.</p>
+	</div>
+
+	<!-- Modal - confirm exclude tournament -->
+	<div class="modal fade" id="deleteTournament" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Delete tournament</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure? This action cannot be undone!</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary" id="btn-delete-tournament">Confirm</button>
+				</div>
+			</div>
 		</div>
 	</div>
 

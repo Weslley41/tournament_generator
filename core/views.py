@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
 
 from core.models import Tournament, Team, Battle, unknownBattle
 
@@ -23,6 +22,7 @@ def tournament_brackets(request, id):
 	""" Tournament brackets page """
 
 	tournament_obj = get_object_or_404(Tournament, id=id)
+	tournament_obj.update_last_accessed()
 	rounds = Battle.objects.values_list('round').filter(tournament=tournament_obj).distinct().order_by('round')
 	context = {
 		'tournament': tournament_obj,
@@ -70,6 +70,7 @@ def tournament_battles(request, id):
 	""" Tournament battles page """
 
 	tournament_obj = get_object_or_404(Tournament, id=id)
+	tournament_obj.update_last_accessed()
 	rounds = Battle.objects.values_list('round').filter(tournament=tournament_obj).distinct().order_by('round')
 
 	context = {
@@ -92,6 +93,7 @@ def tournament_table(request, id):
 	""" Tournament tables page """
 
 	tournament_obj = get_object_or_404(Tournament, id=id)
+	tournament_obj.update_last_accessed()
 	teams = Team.objects.filter(tournament=tournament_obj).order_by('-points', '-goals_difference', '-goals_scored')
 	context = {
 		'tournament': tournament_obj,
@@ -110,6 +112,7 @@ def tournament_edit(request, id):
 	""" Tournament edit page """
 
 	tournament_obj = get_object_or_404(Tournament, id=id)
+	tournament_obj.update_last_accessed()
 
 	try:
 		teams = Team.objects.filter(tournament=tournament_obj)
@@ -124,28 +127,6 @@ def tournament_edit(request, id):
 	}
 
 	return render(request, 'tournament_edit.html', context)
-
-
-def battle_infos(request, tournament_id, tournament_type, game):
-	"""
-		Get battle infos
-		...
-		Parameters:
-			(int) id: battle id
-			(int) game: game number
-
-		Returns:
-			(JsonResponse) battle infos
-	"""
-
-	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
-	battle = get_object_or_404(Battle, tournament=tournament_obj, game=game).battleToJSON()
-
-	context = {
-		'battle': battle,
-	}
-
-	return JsonResponse(context)
 
 
 def error404(request, exception):

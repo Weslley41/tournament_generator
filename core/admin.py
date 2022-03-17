@@ -4,7 +4,7 @@ from .models import Tournament, Team, Battle
 
 
 class TournamentAdmin(admin.ModelAdmin):
-	list_display = ('name',)
+	list_display = ('id', 'name', 'last_accessed', 'status', 'current_round', 'type')
 
 
 class TeamAdmin(admin.ModelAdmin):
