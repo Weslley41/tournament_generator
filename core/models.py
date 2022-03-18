@@ -7,8 +7,9 @@ class Tournament(models.Model):
 		name: tournament name
 	"""
 
-	id = models.AutoField(primary_key=True)
+	id = models.CharField(primary_key=True, max_length=16)
 	name = models.CharField(max_length=100)
+	owner = models.IntegerField(default=0)
 	status = models.CharField(max_length=100, default='not started')
 	current_round = models.IntegerField(default=0)
 	type = models.CharField(max_length=100, default='knockout')
@@ -24,18 +25,6 @@ class Tournament(models.Model):
 		from datetime import datetime
 
 		self.last_accessed = datetime.now()
-		self.save()
-
-
-	def generate_id(self):
-		""" Generate a random id """
-		from random import choice
-		from string import digits
-
-		self.id = int(''.join([ choice(digits) for i in range(16)]))
-		while Tournament.objects.filter(id=self.id).exists():
-			self.id = int(''.join([ choice(digits) for i in range(16)]))
-
 		self.save()
 
 

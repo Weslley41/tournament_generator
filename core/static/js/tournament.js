@@ -1,7 +1,9 @@
 function createTournament() {
 	if (!event.key || event.key === 'Enter') {
+		let cookies = document.cookie.split(';');
+		let userID = cookies.find(cookie => cookie.includes('user_id'));
 		let tournament_name = document.getElementById('inputTournamentName').value;
-		open('tournament/create/' + tournament_name, '_self');
+		open('tournament/create/' + tournament_name + '/owner=' + userID, '_self');
 	}
 }
 
@@ -26,18 +28,31 @@ function nextRound(final=false) {
 }
 
 function setCookie(id) {
-	/* Set cookie and exclude expired tournaments */
+	/* Set tournament cookie */
 	let timeToExpire = new Date();
 	let days = 3;
 	timeToExpire.setTime(timeToExpire.getTime() + (days * 24 * 60 * 60 * 1000));
 	document.cookie = `tournament=${id}; expires=${timeToExpire.toUTCString()}; path=/`;
 
+	/* Exclude expired tournaments */
 	let request = new XMLHttpRequest();
 	request.open('GET', '/check_expired_tournaments', true);
 	request.send();
 }
 
 function getCookie() {
+	/* Create a user cookie */
+	try {
+		let cookies = document.cookie.split(';');
+		let userID = cookies.find(cookie => cookie.includes('user_id'));
+		if (!userID)
+			createUserID();
+	} catch {
+		createUserID();
+	}
+
+
+	/* if as tournament active, show infos */
 	try {
 		let cookies = document.cookie.split(';');
 		let cookie = cookies.find(cookie => cookie.includes('tournament'));
@@ -86,4 +101,9 @@ function getCookie() {
 	} catch (error) {
 		console.log('No tournament active');
 	}
+}
+
+function createUserID() {
+	let id = Math.floor(Math.random() * 100000000000000000000);
+	document.cookie = 'user_id=' + id + '; path=/';
 }

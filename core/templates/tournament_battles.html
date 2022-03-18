@@ -11,7 +11,7 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </head>
-<body onload="setCookie({{ tournament.id }})">
+<body onload="setCookie('{{ tournament.id }}')">
 	<!-- Go to top button -->
 	<div class="position-relative">
 		<button class="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-3" onclick="goTop()">
@@ -21,6 +21,9 @@
 
 	<nav class="navbar navbar-dark bg-dark mb-4 sticky-top">
 		<ul class="nav nav-tabs">
+			<li class="nav-item">
+				<a class="btn btn-dark" href="/" title="Go back to home"><i class="bi bi-house-door-fill"></i></a>
+			</li>	
 			<li class="nav-item navbar-brand mb-0 ms-2">
 				{{tournament.name}}
 			</li>

@@ -5,6 +5,18 @@ from .models import Tournament, Team, Battle
 from .brackets_len import brackets_len
 
 
+def generate_id():
+	""" Generate a random id """
+	from random import choice
+	from string import digits
+
+	id = int(''.join([ choice(digits) for i in range(16)]))
+	while Tournament.objects.filter(id=id).exists():
+		id = ''.join([ choice(digits) for i in range(16)])
+
+	return id
+
+
 def check_expired_tournaments(request):
 	""" Check and delete expired tournaments """
 
@@ -16,10 +28,11 @@ def check_expired_tournaments(request):
 	return HttpResponse(status=200)
 
 
-def create_tournament(request, name):
-	tournament_obj = Tournament(name=name)
-	tournament_obj.generate_id()
-	
+def create_tournament(request, name, owner):
+	id = generate_id()
+	tournament_obj = Tournament(id=id, name=name, owner=owner)
+	tournament_obj.save()
+
 	return redirect(f'/tournament/{tournament_obj.id}/edit')
 
 
