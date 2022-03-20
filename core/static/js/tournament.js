@@ -1,7 +1,7 @@
 function createTournament() {
 	if (!event.key || event.key === 'Enter') {
 		let cookies = document.cookie.split(';');
-		let userID = cookies.find(cookie => cookie.includes('user_id'));
+		let userID = cookies.find(cookie => cookie.includes('user_id')).split('=')[1];
 		let tournament_name = document.getElementById('inputTournamentName').value;
 		open('tournament/create/' + tournament_name + '/owner=' + userID, '_self');
 	}
@@ -104,6 +104,6 @@ function getCookie() {
 }
 
 function createUserID() {
-	let id = Math.floor(Math.random() * 100000000000000000000);
+	let id = Math.floor(Math.random() * 1000000000000000);
 	document.cookie = 'user_id=' + id + '; path=/';
 }

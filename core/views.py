@@ -49,19 +49,19 @@ def tournament_brackets(request, id):
 				"battles": battles,
 			})
 
-		# Battles not defined
-		count_battles = battles.count()
-		while (count_battles >= 2):
-			count_battles = count_battles // 2
+	# Battles not defined
+	count_battles = battles.count()
+	while (count_battles >= 2):
+		count_battles = count_battles // 2
 
-			if (count_battles > 1):
-				context['rounds'].append({
-					"round": 0,
-					"bracket_A": [unknownBattle() for j in range(count_battles // 2)],
-					"bracket_B": [unknownBattle() for k in range(count_battles // 2)],
-				})
-			else:
-				context['final'] = unknownBattle()
+		if (count_battles > 1):
+			context['rounds'].append({
+				"round": 0,
+				"bracket_A": [unknownBattle() for j in range(count_battles // 2)],
+				"bracket_B": [unknownBattle() for k in range(count_battles // 2)],
+			})
+		else:
+			context['final'] = unknownBattle()
 
 	return render(request, 'tournament_brackets.html', context)
 

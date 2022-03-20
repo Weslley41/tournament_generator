@@ -22,7 +22,7 @@
 			</span>
 			<span>
 				<a class="btn btn-secondary" href="/" title="Go back to home"><i class="bi bi-house-door-fill"></i></a>
-				<button class="btn btn-danger" onclick="deleteTournament({{ tournament.id }})" title="Delete Tournament"><i class="bi bi-trash"></i></button>
+				<button class="btn btn-danger" title="Delete Tournament" data-bs-toggle="modal" data-bs-target="#deleteTournament"><i class="bi bi-trash"></i></button>
 			</span>
 		</div>
 	</nav>
@@ -81,6 +81,25 @@
 			</button>
 		</div>
 		{% endif %}
+	</div>
+
+	<!-- Modal - confirm exclude tournament -->
+	<div class="modal fade" id="deleteTournament" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Delete tournament</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<p>Are you sure? This action cannot be undone!</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					<button type="button" onclick="deleteTournament({{ tournament.id }})" class="btn btn-danger" id="btn-delete-tournament">Confirm</button>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<script src=" {% static 'js/team.js' %} "></script>

@@ -330,6 +330,11 @@ def end_tournament(request, tournament_id):
 	"""
 
 	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
+	current_round = tournament_obj.current_round
+	battles = Battle.objects.filter(tournament=tournament_obj, round=current_round).order_by('game')
+	for battle in battles:
+		battle.end_battle()
+
 	tournament_obj.change_status('ended')
 
 	return redirect(f'/tournament/{tournament_id}/{tournament_obj.type}')
