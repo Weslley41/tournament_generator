@@ -11,7 +11,7 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </head>
-<body onload="setCookie('{{ tournament.id }}')">
+<body>
 	<!-- Go to top button -->
 	<div class="position-relative">
 		<button class="btn btn-primary rounded-circle position-fixed bottom-0 end-0 m-3" onclick="goTop()">
@@ -58,7 +58,7 @@
 			{% for round in rounds %}
 				<p class="list-group-item active d-flex justify-content-between align-items-center" id="round-{{round.round}}">
 					Round {{ round.round }}
-					{% if round.round == tournament.current_round and tournament.status == "running" %}
+					{% if is_owner and round.round == tournament.current_round and tournament.status == "running" %}
 						<span data-bs-toggle="modal" data-bs-target="#nextRound" class="btn btn-primary">
 							End Round<i class="bi bi-hammer ms-2"></i>
 						</span>
@@ -67,7 +67,7 @@
 				<div class="d-flex flex-wrap justify-content-around">
 				{% for battle in round.battles %}
 					<div id="game-{{battle.game}}" style="width: 250px">
-						{% if battle.editable %}
+						{% if is_owner and battle.editable %}
 							<small class="d-flex justify-content-between text-secondary p-1">Game {{battle.game}} <i onclick="setEditBattleValues({{battle.game}})" class="bi bi-pencil" data-bs-toggle="modal" data-bs-target="#editBattle" style="cursor: pointer"></i></small>
 							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people-fill"></i> {{battle.team_1.name}}</span> <span id="team_score">{{battle.team_1_score}}</span></p>
 							<p class="d-flex justify-content-between p-1"><span><i class="bi bi-people"></i> {{battle.team_2.name}}</span> <span id="team_score">{{battle.team_2_score}}</span></p>
@@ -91,6 +91,7 @@
 		</div>
 	</div>
 
+	{% if is_owner %}
 	<!-- Modal - set score of battle -->
 	<div class="modal fade" id="editBattle" tabindex="-1" aria-labelledby="editBattleLabel" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered">
@@ -146,6 +147,7 @@
 
 	<script src="{% static 'js/tournament.js' %}"></script>
 	<script src="{% static 'js/battle.js' %}"></script>
+	{% endif %}
 	<script>
 		function goTop() {
 			scrollTo(0, 0);

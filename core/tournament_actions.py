@@ -17,6 +17,21 @@ def generate_id():
 	return id
 
 
+def set_user_id(request):
+	""" Set user id """
+
+	try:
+		request.session['user_id']
+	except KeyError:
+		request.session['user_id'] = generate_id()
+
+
+def get_user_id(request):
+	""" Get user id	"""
+
+	return request.session['user_id']
+
+
 def check_expired_tournaments(request):
 	""" Check and delete expired tournaments """
 
@@ -28,9 +43,9 @@ def check_expired_tournaments(request):
 	return HttpResponse(status=200)
 
 
-def create_tournament(request, name, owner):
+def create_tournament(request, name):
 	id = generate_id()
-	tournament_obj = Tournament(id=id, name=name, owner=owner)
+	tournament_obj = Tournament(id=id, name=name, owner=get_user_id(request))
 	tournament_obj.save()
 
 	return redirect(f'/tournament/{tournament_obj.id}/edit')
@@ -45,31 +60,12 @@ def tournament_delete(request, id):
 	"""
 
 	tournament_obj = get_object_or_404(Tournament, id=id)
+	if (tournament_obj.owner != get_user_id(request)):
+		raise PermissionDenied
+
 	tournament_obj.delete()
 
 	return redirect('/')
-
-
-def tournament_infos(request, id):
-	"""
-	Returns the infos of a tournament
-	...
-	Parameters:
-		(int) id: tournament id
-	Returns:
-		(dict) tournament: name, type, status, current_round, count_teams
-	"""
-
-	tournament_obj = get_object_or_404(Tournament, id=id)
-	context = {
-		'name': tournament_obj.name,
-		'type': tournament_obj.type,
-		'status': tournament_obj.status,
-		'current_round': tournament_obj.current_round,
-		'count_teams': Team.objects.filter(tournament=id).count(),
-	}
-
-	return JsonResponse(context)
 
 
 def battle_infos(request, tournament_id, tournament_type, game):
@@ -103,6 +99,9 @@ def insert_team(request, id, name):
 	"""
 
 	tournament_obj = get_object_or_404(Tournament, id=id)
+	if (tournament_obj.owner != get_user_id(request)):
+		raise PermissionDenied
+
 	team = Team(name=name, tournament=tournament_obj)
 	team.save()
 
@@ -119,6 +118,9 @@ def remove_team(request, tournament_id, team_id):
 	"""
 
 	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
+	if (tournament_obj.owner != get_user_id(request)):
+		raise PermissionDenied
+
 	team = Team.objects.get(id=team_id)
 	team.delete()
 
@@ -245,6 +247,9 @@ def set_scores_battle(request, tournament_id, tournament_type, game, team_1_scor
 	"""
 
 	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
+	if (tournament_obj.owner != get_user_id(request)):
+		raise PermissionDenied
+
 	battle = get_object_or_404(Battle, tournament=tournament_obj, game=game)
 	if (battle.editable):
 		battle.set_scores(team_1_score, team_2_score)
@@ -262,12 +267,12 @@ def next_round(request, tournament_id, tournament_type):
 	"""
 
 	if (tournament_type == 'league'):
-		return next_round_league(tournament_id)
+		return next_round_league(request, tournament_id)
 	elif (tournament_type == 'knockout'):
-		return next_round_knockout(tournament_id)
+		return next_round_knockout(request, tournament_id)
 
 
-def next_round_knockout(tournament_id):
+def next_round_knockout(request, tournament_id):
 	"""
 		Generates the next round of knockout tournament
 		...
@@ -276,6 +281,9 @@ def next_round_knockout(tournament_id):
 	"""
 
 	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
+	if (tournament_obj.owner != get_user_id(request)):
+		raise PermissionDenied
+
 	current_round = tournament_obj.current_round
 	battles = Battle.objects.filter(tournament=tournament_obj, round=current_round).order_by('game')
 	if (None not in [battle.get_winner() for battle in battles]):
@@ -295,7 +303,7 @@ def next_round_knockout(tournament_id):
 	return redirect(f'/tournament/{tournament_id}/knockout/battles')
 
 
-def next_round_league(tournament_id):
+def next_round_league(request, tournament_id):
 	"""
 		Ends the battles of the round
 		...
@@ -304,6 +312,9 @@ def next_round_league(tournament_id):
 	"""
 
 	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
+	if (tournament_obj.owner != get_user_id(request)):
+		raise PermissionDenied
+
 	current_round = tournament_obj.current_round
 
 	battles = Battle.objects.filter(tournament=tournament_obj, round=current_round).order_by('game')
@@ -330,6 +341,9 @@ def end_tournament(request, tournament_id):
 	"""
 
 	tournament_obj = get_object_or_404(Tournament, id=tournament_id)
+	if (tournament_obj.owner != get_user_id(request)):
+		raise PermissionDenied
+
 	current_round = tournament_obj.current_round
 	battles = Battle.objects.filter(tournament=tournament_obj, round=current_round).order_by('game')
 	for battle in battles:

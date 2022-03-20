@@ -1,15 +1,27 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.core.exceptions import PermissionDenied
 
-from core.models import Tournament, Team, Battle, unknownBattle
+from .models import Tournament, Team, Battle, unknownBattle
+from .tournament_actions import set_user_id, get_user_id
 
 def index(request):
 	""" Index page """
-	return render(request, 'index.html')
+	set_user_id(request)
+
+	tournament_obj = Tournament.objects.filter(owner=get_user_id(request))
+	has_tournament = True if tournament_obj else False
+	context = {
+		'has_tournament': has_tournament,
+		'tournament': tournament_obj[0] if has_tournament else None,
+		'count_teams': Team.objects.filter(tournament=tournament_obj[0]).count() if has_tournament else 0,
+	}
+
+	return render(request, 'index.html', context)
 
 
 def tournament(request, id):
 	""" Redirect to tournament page	"""
-
+	set_user_id(request)
 	tournament_obj = get_object_or_404(Tournament, id=id)
 
 	if (tournament_obj.type == 'knockout'):
@@ -20,6 +32,7 @@ def tournament(request, id):
 
 def tournament_brackets(request, id):
 	""" Tournament brackets page """
+	set_user_id(request)
 
 	tournament_obj = get_object_or_404(Tournament, id=id)
 	tournament_obj.update_last_accessed()
@@ -29,6 +42,7 @@ def tournament_brackets(request, id):
 		'other_battles': [],
 		'rounds': [],
 		'current_round': tournament_obj.current_round,
+		"is_owner": tournament_obj.owner == get_user_id(request),
 	}
 
 	for round in rounds:
@@ -68,6 +82,7 @@ def tournament_brackets(request, id):
 
 def tournament_battles(request, id):
 	""" Tournament battles page """
+	set_user_id(request)
 
 	tournament_obj = get_object_or_404(Tournament, id=id)
 	tournament_obj.update_last_accessed()
@@ -77,6 +92,7 @@ def tournament_battles(request, id):
 		'tournament': tournament_obj,
 		'rounds': [],
 		'n_rounds': range(1, rounds.count() + 1),
+		"is_owner": tournament_obj.owner == get_user_id(request),
 	}
 
 	for round in rounds:
@@ -91,6 +107,7 @@ def tournament_battles(request, id):
 
 def tournament_table(request, id):
 	""" Tournament tables page """
+	set_user_id(request)
 
 	tournament_obj = get_object_or_404(Tournament, id=id)
 	tournament_obj.update_last_accessed()
@@ -112,6 +129,9 @@ def tournament_edit(request, id):
 	""" Tournament edit page """
 
 	tournament_obj = get_object_or_404(Tournament, id=id)
+	if (tournament_obj.owner != get_user_id(request)):
+		raise PermissionDenied
+
 	tournament_obj.update_last_accessed()
 
 	try:
@@ -133,3 +153,9 @@ def error404(request, exception):
 	""" Error 404 page """
 
 	return render(request, 'tournament_not_found.html')
+
+
+def error403(request, exception):
+	""" Error 403 page """
+
+	return render(request, 'access_denied.html')

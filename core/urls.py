@@ -6,7 +6,7 @@ from .views import (
 )
 
 from .tournament_actions import (
-	check_expired_tournaments, create_tournament, tournament_delete, tournament_infos,
+	check_expired_tournaments, create_tournament, tournament_delete,
 	battle_infos, insert_team, remove_team, generate_league, generate_knockout,
 	generate_first_battles_knockout, set_scores_battle, next_round, next_round_knockout,
 	next_round_league, end_tournament)
@@ -26,12 +26,11 @@ urlpatterns = [
 
 	# Actions
 	## Global
-	path('tournament/create/<str:name>/owner=<int:owner>', create_tournament),
+	path('tournament/create/<str:name>', create_tournament),
 	path('tournament/<str:id>', tournament),
 	path('tournament/<str:id>/delete', tournament_delete),
 	path('tournament/<str:id>/edit/insert_team/<str:name>', insert_team),
 	path('tournament/<str:tournament_id>/edit/remove_team/<int:team_id>', remove_team),
-	path('tournament/<str:id>/tournament_infos', tournament_infos),
 	path('tournament/<str:tournament_id>/<str:tournament_type>/battle/<int:game>', battle_infos),
 	path('tournament/<str:tournament_id>/<str:tournament_type>/battle/<int:game>/scores/team1=<int:team_1_score>&team2=<int:team_2_score>', set_scores_battle),
 	path('tournament/<str:tournament_id>/<str:tournament_type>/next_round', next_round),

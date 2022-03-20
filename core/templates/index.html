@@ -11,7 +11,7 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </head>
-<body onload="getCookie()">
+<body>
 	<nav class="navbar navbar-light bg-light">
 		<div class="container-fluid d-flex justify-content-start">
 			<p class="h2">Tournament Generator</p>
@@ -19,20 +19,42 @@
 		</div>
 	</nav>
 
-	<div class="container col-lg-6 mt-3" id="boxCreateTournament">
-		<div class="input-group">
-			<input type="text" class="form-control" id="inputTournamentName" placeholder="Tournament name" onkeyup="createTournament()">
-			<span class="input-group-btn">
-				<button class="btn btn-primary" type="button" onclick="createTournament()">Create!</button>
-			</span>
+	{% if not has_tournament %}
+		<div class="container col-lg-6 mt-3" id="boxCreateTournament">
+			<div class="input-group">
+				<input type="text" class="form-control" id="inputTournamentName" placeholder="Tournament name" onkeyup="createTournament()">
+				<span class="input-group-btn">
+					<button class="btn btn-primary" type="button" onclick="createTournament()">Create!</button>
+				</span>
+			</div>
 		</div>
-	</div>
+	{% endif %}
 
 	<div class="container-fluid">
 		<h3>Infos</h3>
 		<p>Tournaments will remove after 3 days off.</p>
 		<p>To create another tournament, delete the current.</p>
 	</div>
+
+	{% if has_tournament %}
+		<h3 class="ms-2">Tournament active</h3>
+		<div class="card col-lg-3 ms-2">
+			<h5 class="card-header d-flex justify-content-between">
+				{{ tournament.name }}
+				<i class="bi bi-trash" data-bs-toggle="modal" data-bs-target="#deleteTournament" style="cursor: pointer"></i>
+			</h5>
+			<div class="card-body">
+				Type: {{ tournament.type }}<br>
+				Round: {{ tournament.current_round }}<br>
+				Status: {{ tournament.status }}<br>
+				{{ count_teams }} teams
+			</div>
+			<div class="card-footer d-flex justify-content-around">
+				<a href="tournament/{{ tournament.id }}/edit" class="btn btn-primary">Edit tournament</a>
+				<a href="tournament/{{ tournament.id }}" class="btn btn-primary">Go to tournament</a>
+			</div>
+		</div>
+	{% endif %}
 
 	<!-- Modal - confirm exclude tournament -->
 	<div class="modal fade" id="deleteTournament" tabindex="-1">
@@ -47,7 +69,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-danger" id="btn-delete-tournament">Confirm</button>
+					<button type="button" class="btn btn-danger" id="btn-delete-tournament" onclick="deleteTournament({{tournament.id}})">Confirm</button>
 				</div>
 			</div>
 		</div>
