@@ -14,6 +14,7 @@ def index(request):
 		'has_tournament': has_tournament,
 		'tournament': tournament_obj[0] if has_tournament else None,
 		'count_teams': Team.objects.filter(tournament=tournament_obj[0]).count() if has_tournament else 0,
+		'is_mobile': 'Mobile' in request.META['HTTP_USER_AGENT'],
 	}
 
 	return render(request, 'index.html', context)

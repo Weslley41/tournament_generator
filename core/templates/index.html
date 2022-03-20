@@ -41,7 +41,10 @@
 		<div class="card col-lg-3 ms-2">
 			<h5 class="card-header d-flex justify-content-between">
 				{{ tournament.name }}
-				<i class="bi bi-trash" data-bs-toggle="modal" data-bs-target="#deleteTournament" style="cursor: pointer"></i>
+				<span>
+				<i class="bi bi-share-fill" title = "share tournament" data-bs-toggle="modal" data-bs-target="#shareTournament" style="cursor: pointer"></i>
+				<i class="bi bi-trash ms-2" title = "delete tournament" data-bs-toggle="modal" data-bs-target="#deleteTournament" style="cursor: pointer"></i>
+				</span>
 			</h5>
 			<div class="card-body">
 				Type: {{ tournament.type }}<br>
@@ -54,7 +57,6 @@
 				<a href="tournament/{{ tournament.id }}" class="btn btn-primary">Go to tournament</a>
 			</div>
 		</div>
-	{% endif %}
 
 	<!-- Modal - confirm exclude tournament -->
 	<div class="modal fade" id="deleteTournament" tabindex="-1">
@@ -75,6 +77,38 @@
 		</div>
 	</div>
 
+	<!-- Modal - share tournament -->
+	<div class="modal fade" id="shareTournament" tabindex="-1">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Share tournament</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" id="modal-body-share-tournament">
+					<p>The receiver will not be allowed for edit the tournament.</p>
+					<div class="input-group">
+						<input type="text" class="form-control" id="link-to-share-tournament" value="127.0.0.1:8000/tournament/{{ tournament.id }}">
+						<button class="btn btn-primary input-group-text" onclick="copyLink()"><i class="bi bi-paperclip"></i> Copy</button>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					{% if is_mobile %}
+						<a class="btn btn-success" href="whatsapp://send?text=127.0.0.1:8000/tournament/{{ tournament.id }}">
+					{% else %}
+						<a class="btn btn-success" href="https://web.whatsapp.com:/send?text=127.0.0.1:8000/tournament/{{ tournament.id }}" target="_blank">
+					{% endif %}
+						<i class="bi bi-whatsapp"></i>
+						Share on whatsapp
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script src="{% static 'js/shareTournament.js' %}"></script>
+	{% endif %}
 	<script src="{% static 'js/tournament.js' %}"></script>
 </body>
 </html>
