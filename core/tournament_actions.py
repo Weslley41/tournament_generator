@@ -1,5 +1,6 @@
 from django.shortcuts import redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
+from django.core.exceptions import PermissionDenied
 
 from .models import Tournament, Team, Battle
 from .brackets_len import brackets_len
@@ -45,6 +46,10 @@ def check_expired_tournaments(request):
 
 def create_tournament(request, name):
 	id = generate_id()
+	user_has_tournament = Tournament.objects.filter(owner=get_user_id(request)).exists()
+	if (user_has_tournament):
+		raise PermissionDenied
+
 	tournament_obj = Tournament(id=id, name=name, owner=get_user_id(request))
 	tournament_obj.save()
 
@@ -139,16 +144,25 @@ def generate_league(request, id):
 	tournament_obj.save()
 
 	list_teams = list(Team.objects.filter(tournament=tournament_obj))
-	n_rounds = len(list_teams) - 1
+	n_battles = len(list_teams) // 2
 	shuffle(list_teams)
+	if (not len(list_teams) % 2):
+		fixed_team = list_teams.pop(0)
+		n_rounds = len(list_teams) - 1
+	else:
+		fixed_team = None
+		n_rounds = len(list_teams)
 
 	round = game = 1
 	battles = {}
 	# First half
 	for i in range(n_rounds):
 		battles[f'round_{round}'] = []
-		for j in range(len(list_teams) // 2):
-			team_1 = list_teams[j]
+		for j in range(n_battles):
+			if (fixed_team):
+				team_1 = fixed_team if (j == 0) else list_teams[j - 1]
+			else:
+				team_1 = list_teams[j]
 			team_2 = list_teams[-(j + 1)]
 			battle = Battle(round=round, game=game, tournament=tournament_obj, team_1=team_1, team_2=team_2)
 			battles[f'round_{round}'].append(battle)
