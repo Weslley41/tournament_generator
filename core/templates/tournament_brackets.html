@@ -11,27 +11,63 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </head>
-<body>
-	<nav class="navbar navbar-dark bg-dark mb-4">
-		<ul class="nav nav-tabs">
-			<li class="nav-item">
-				<a class="btn btn-dark" href="/" title="Go back to home"><i class="bi bi-house-door-fill"></i></a>
-			</li>
-			<li class="nav-item navbar-brand mb-0 ms-2">
-				{{tournament.name}}
-			</li>
-			<li class="nav-item">
-				<a class="nav-link active" aria-current="page" href="brackets">Brackets</a>
-			</li>
-			<li class="nav-item">
-				<a class="nav-link text-light" href="battles">Battles</a>
-			</li>
-			<li class="nav-item">
-				<button class="nav-link text-light" data-bs-toggle="modal" data-bs-target="#shareTournament">Share</button>
-			</li>
-		</ul>
-	</nav>
+<body class="d-flex flex-column" style="height:100vh">
+	{% if is_mobile %}
+		<nav class="navbar navbar-dark bg-dark mb-4 sticky-top">
+			<div class="container-fluid">
+				<a class="navbar-brand" href="#">{{ tournament.name}}</a>
+				<button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+					<div class="offcanvas-header">
+						<h5 class="offcanvas-title" id="offcanvasNavbarLabel">Menu</h5>
+						<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+					</div>
+					<div class="offcanvas-body">
+						<ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+							<li class="nav-item">
+								<a class="nav-link text-light" href="/"><i class="bi bi-house-door-fill"></i> Home</a>
+							</li>	
+							<li class="nav-item">
+									<a class="nav-link text-primary" href="brackets">Brackets</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link text-light" aria-current="page" href="battles">Battles</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link text-light" data-bs-toggle="modal" data-bs-target="#shareTournament">Share</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</nav>
 
+		<p class="alert alert-danger">Use the phone in landscape mode for better viewing</p>
+	{% else %}
+		<nav class="navbar navbar-dark bg-dark mb-4">
+			<ul class="nav nav-tabs">
+				<li class="nav-item">
+					<a class="btn btn-dark" href="/" title="Go back to home"><i class="bi bi-house-door-fill"></i></a>
+				</li>
+				<li class="nav-item navbar-brand mb-0 ms-2">
+					{{tournament.name}}
+				</li>
+				<li class="nav-item">
+					<a class="nav-link active" aria-current="page" href="brackets">Brackets</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link text-light" href="battles">Battles</a>
+				</li>
+				<li class="nav-item">
+					<button class="nav-link text-light" data-bs-toggle="modal" data-bs-target="#shareTournament">Share</button>
+				</li>
+			</ul>
+		</nav>
+	{% endif %}
+
+	<main>
 	{% if is_owner and tournament.status == 'running' %}
 		<div class="d-grid gap-2 col-2 mx-auto">
 			<button data-bs-toggle="modal" data-bs-target="#nextRound" type="button" class="btn btn-outline-primary mb-3 d-flex justify-content-evenly">
@@ -120,6 +156,13 @@
 			{% endfor %}
 		</div>
 	</div>
+	</main>
+
+	<footer class="d-flex flex-wrap justify-content-center align-items-center py-3 my-4 border-top">
+		<a href="https://github.com/Weslley41" target="_blank" class="nav-link px-2 text-muted">
+			Developed by <i class="bi bi-github"></i>/Weslley41
+		</a>
+	</footer>
 
 	{% if is_owner %}
 	<!-- Modal - set score of battle -->
@@ -194,13 +237,29 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+					{% if have_16_finals and not have_8_finals %}
+						<button id="btnSaveImage" type="button" class="btn btn-primary" onclick="saveImage({{ tournament.id }}, '{{ tournament.type }}', 16)">Download image</button>
+					{% elif not have_16_finals and have_8_finals %}
+						<button id="btnSaveImage" type="button" class="btn btn-primary" onclick="saveImage({{ tournament.id }}, '{{ tournament.type }}', 8)">Download image</button>
+					{% elif have_16_finals and have_8_finals %}
+						<div class="dropdown">
+							<button class="btn btn-primary dropdown-toggle" type="button" id="btnSaveImage" data-bs-toggle="dropdown" aria-expanded="false">
+								Download image
+							</button>
+							<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+								<li><button class="dropdown-item" onclick="saveImage({{ tournament.id }}, '{{ tournament.type }}', 16)">16-finals</button></li>
+								<li><button class="dropdown-item" onclick="saveImage({{ tournament.id }}, '{{ tournament.type }}', 8)">Quarter-finals</button></li>
+							</ul>
+						</div>
+					{% endif %}
+
 					{% if is_mobile %}
 						<a class="btn btn-success" href="whatsapp://send?text=127.0.0.1:8000/tournament/{{ tournament.id }}">
 					{% else %}
 						<a class="btn btn-success" href="https://web.whatsapp.com:/send?text=127.0.0.1:8000/tournament/{{ tournament.id }}" target="_blank">
 					{% endif %}
 						<i class="bi bi-whatsapp"></i>
-						Share on whatsapp
+						Share
 					</a>
 				</div>
 			</div>

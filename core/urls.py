@@ -4,6 +4,7 @@ from django.views import defaults
 from .views import (
 	index, tournament, tournament_edit, tournament_battles, tournament_brackets, tournament_table
 )
+from .generate_images import generate_knockout_image, generate_league_image
 
 from .tournament_actions import (
 	check_expired_tournaments, create_tournament, tournament_delete,
@@ -38,8 +39,10 @@ urlpatterns = [
 	path('tournament/<str:id>/knockout', tournament),
 	path('tournament/<str:id>/generate/knockout', generate_knockout),
 	path('tournament/<str:tournament_id>/knockout/final', end_tournament),
+	path('tournament/<str:tournament_id>/image/knockout/<str:step>', generate_knockout_image),
 	## League
 	path('tournament/<str:id>/league', tournament),
 	path('tournament/<str:id>/generate/league', generate_league),
 	path('tournament/<str:id>/league/table', tournament_table),
+	path('tournament/<str:tournament_id>/image/league', generate_league_image),
 ]

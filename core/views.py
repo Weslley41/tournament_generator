@@ -38,12 +38,18 @@ def tournament_brackets(request, id):
 	tournament_obj = get_object_or_404(Tournament, id=id)
 	tournament_obj.update_last_accessed()
 	rounds = Battle.objects.values_list('round').filter(tournament=tournament_obj).distinct().order_by('round')
+	count_teams = Team.objects.filter(tournament=tournament_obj).count()
+	divisor = 2 * (rounds.count() - 1) if rounds.count() > 1 else 1
+	count_current_teams = count_teams // divisor
 	context = {
 		'tournament': tournament_obj,
 		'other_battles': [],
 		'rounds': [],
 		'current_round': tournament_obj.current_round,
-		"is_owner": tournament_obj.owner == get_user_id(request),
+		'is_owner': tournament_obj.owner == get_user_id(request),
+		'is_mobile': 'Mobile' in request.META['HTTP_USER_AGENT'],
+		'have_16_finals': count_teams >= 16 and count_current_teams <= 16,
+		'have_8_finals': count_teams >= 8 and count_current_teams <= 8,
 	}
 
 	for round in rounds:
@@ -88,12 +94,20 @@ def tournament_battles(request, id):
 	tournament_obj = get_object_or_404(Tournament, id=id)
 	tournament_obj.update_last_accessed()
 	rounds = Battle.objects.values_list('round').filter(tournament=tournament_obj).distinct().order_by('round')
-
+	count_teams = Team.objects.filter(tournament=tournament_obj).count()
+	divisor = 2 * (rounds.count() - 1) if rounds.count() > 1 else 1
+	count_current_teams = count_teams // divisor
+	print(count_teams)
+	print(count_current_teams)
 	context = {
 		'tournament': tournament_obj,
 		'rounds': [],
 		'n_rounds': range(1, rounds.count() + 1),
-		"is_owner": tournament_obj.owner == get_user_id(request),
+		'is_owner': tournament_obj.owner == get_user_id(request),
+		'is_mobile': 'Mobile' in request.META['HTTP_USER_AGENT'],
+		'count_teams': count_teams,
+		'have_16_finals': count_teams >= 16 and count_current_teams <= 16,
+		'have_8_finals': count_teams >= 8 and count_current_teams <= 8,
 	}
 
 	for round in rounds:
@@ -116,6 +130,8 @@ def tournament_table(request, id):
 	context = {
 		'tournament': tournament_obj,
 		'teams': [],
+		'count_teams': teams.count(),
+		'is_mobile': 'Mobile' in request.META['HTTP_USER_AGENT'],
 	}
 	for pos, team in enumerate(teams):
 		context['teams'].append({
