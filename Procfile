@@ -1,0 +1,1 @@
+web: gunicorn tournament_generator.wsgi --log-file -
