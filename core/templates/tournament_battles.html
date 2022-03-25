@@ -183,7 +183,7 @@
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-					{% if final.game %}
+					{% if is_final %}
 						<button type="button" class="btn btn-primary" onclick="nextRound(final=true)">Confirm</button>
 					{% else %}
 						<button type="button" class="btn btn-primary" onclick="nextRound()">Confirm</button>

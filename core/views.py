@@ -97,8 +97,6 @@ def tournament_battles(request, id):
 	count_teams = Team.objects.filter(tournament=tournament_obj).count()
 	divisor = 2 * (rounds.count() - 1) if rounds.count() > 1 else 1
 	count_current_teams = count_teams // divisor
-	print(count_teams)
-	print(count_current_teams)
 	context = {
 		'tournament': tournament_obj,
 		'rounds': [],
@@ -108,6 +106,7 @@ def tournament_battles(request, id):
 		'count_teams': count_teams,
 		'have_16_finals': count_teams >= 16 and count_current_teams <= 16,
 		'have_8_finals': count_teams >= 8 and count_current_teams <= 8,
+		'is_final': count_current_teams == 2,
 	}
 
 	for round in rounds:
