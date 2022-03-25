@@ -211,7 +211,7 @@
 						<p class="alert alert-danger">Only the top 20 will be considered, when downloading the image</p>
 					{% endif %}
 					<div class="input-group">
-						<input type="text" class="form-control" id="link-to-share-tournament" value="https://tournament-generator-w41.herokuapp.com:8000/tournament/{{ tournament.id }}">
+						<input type="text" class="form-control" id="link-to-share-tournament" value="https://tournament-generator-w41.herokuapp.com/tournament/{{ tournament.id }}">
 						<button class="btn btn-primary input-group-text" onclick="copyLink()"><i class="bi bi-paperclip"></i> Copy</button>
 					</div>
 				</div>
@@ -238,9 +238,9 @@
 					{% endif %}
 
 					{% if is_mobile %}
-						<a class="btn btn-success" href="whatsapp://send?text=https://tournament-generator-w41.herokuapp.com:8000/tournament/{{ tournament.id }}">
+						<a class="btn btn-success" href="whatsapp://send?text=https://tournament-generator-w41.herokuapp.com/tournament/{{ tournament.id }}">
 					{% else %}
-						<a class="btn btn-success" href="https://web.whatsapp.com:/send?text=https://tournament-generator-w41.herokuapp.com:8000/tournament/{{ tournament.id }}" target="_blank">
+						<a class="btn btn-success" href="https://web.whatsapp.com:/send?text=https://tournament-generator-w41.herokuapp.com/tournament/{{ tournament.id }}" target="_blank">
 					{% endif %}
 						<i class="bi bi-whatsapp"></i>
 						Share
